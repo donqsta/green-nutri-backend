@@ -29,6 +29,10 @@ const hbs = create({
   layoutsDir: path.join(__dirname, 'views/layouts'),
   partialsDir: path.join(__dirname, 'views/partials'),
   extname: '.hbs',
+  runtimeOptions: {
+    allowProtoPropertiesByDefault: true,
+    allowProtoMethodsByDefault: true,
+  },
   helpers: {
     formatPrice: function(price: number) {
       return new Intl.NumberFormat('vi-VN', {

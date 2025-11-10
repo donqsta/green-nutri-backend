@@ -29,6 +29,10 @@ const hbs = (0, express_handlebars_1.create)({
     layoutsDir: path_1.default.join(__dirname, 'views/layouts'),
     partialsDir: path_1.default.join(__dirname, 'views/partials'),
     extname: '.hbs',
+    runtimeOptions: {
+        allowProtoPropertiesByDefault: true,
+        allowProtoMethodsByDefault: true,
+    },
     helpers: {
         formatPrice: function (price) {
             return new Intl.NumberFormat('vi-VN', {
