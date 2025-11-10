@@ -8,5 +8,6 @@
     "startCommand": "npm start",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
-  }
+  },
+  "comment": "Fixed deployment - build and start commands configured"
 }
