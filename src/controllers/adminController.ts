@@ -248,7 +248,7 @@ export const createCategory = async (req: Request, res: Response) => {
 
     res.status(400).render('admin/category-form', {
       title: 'Thêm Danh mục Mới - Green Nutri',
-      category: { ...req.body, slug },
+      category: req.body,
       isEdit: false,
       error: errorMessage
     });

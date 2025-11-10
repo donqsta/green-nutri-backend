@@ -37,7 +37,7 @@ const mongoose_1 = __importStar(require("mongoose"));
 const CategorySchema = new mongoose_1.Schema({
     name: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
-    image: { type: String, required: true },
+    image: { type: String, default: 'https://via.placeholder.com/200x120/0C8242/FFFFFF?text=Category' },
     order: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true }
 }, {

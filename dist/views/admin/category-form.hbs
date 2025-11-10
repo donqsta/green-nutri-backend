@@ -1,0 +1,107 @@
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">
+                    {{#if isEdit}}Chỉnh sửa danh mục{{else}}Thêm danh mục mới{{/if}}
+                </h6>
+            </div>
+            <div class="card-body">
+                {{#if error}}
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>{{error}}
+                </div>
+                {{/if}}
+
+                <form method="POST" action="{{#if isEdit}}/admin/categories/{{category._id}}{{else}}/admin/categories{{/if}}">
+                    <!-- Basic Information -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">Thông tin cơ bản</h5>
+                        </div>
+                        <div class="col-md-8 mb-3">
+                            <label for="name" class="form-label">Tên danh mục <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name"
+                                   value="{{category.name}}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="order" class="form-label">Thứ tự hiển thị</label>
+                            <input type="number" class="form-control" id="order" name="order"
+                                   value="{{category.order}}" min="0">
+                            <div class="form-text">Số càng nhỏ càng hiển thị trước</div>
+                        </div>
+                    </div>
+
+                    <!-- Slug and Image -->
+                    <div class="row mb-4">
+                        <div class="col-md-8 mb-3">
+                            <label for="slug" class="form-label">Slug (URL)</label>
+                            <input type="text" class="form-control" id="slug" name="slug"
+                                   value="{{category.slug}}" placeholder="ten-danh-muc">
+                            <div class="form-text">Để trống để tự động tạo</div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="image" class="form-label">URL hình ảnh</label>
+                            <input type="url" class="form-control" id="image" name="image"
+                                   value="{{category.image}}" placeholder="https://example.com/image.jpg">
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">Trạng thái</h5>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="isActive" name="isActive"
+                                       {{#if category.isActive}}checked{{/if}}>
+                                <label class="form-check-label" for="isActive">
+                                    Hiển thị danh mục
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a href="/admin/categories" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left me-1"></i>Quay lại
+                                </a>
+                                <div>
+                                    <button type="submit" class="btn btn-success btn-green">
+                                        <i class="bi bi-check-lg me-1"></i>
+                                        {{#if isEdit}}Cập nhật danh mục{{else}}Thêm danh mục{{/if}}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-generate slug from name
+document.getElementById('name').addEventListener('input', function() {
+    const name = this.value;
+    const slug = name.toLowerCase()
+        .replace(/[áàảãạăắằẳẵặâấầẩẫậ]/g, 'a')
+        .replace(/[éèẻẽẹêếềểễệ]/g, 'e')
+        .replace(/[íìỉĩị]/g, 'i')
+        .replace(/[óòỏõọôốồổỗộơớờởỡợ]/g, 'o')
+        .replace(/[úùủũụưứừửữự]/g, 'u')
+        .replace(/[ýỳỷỹỵ]/g, 'y')
+        .replace(/[đ]/g, 'd')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim('-');
+
+    document.getElementById('slug').value = slug;
+});
+</script>
