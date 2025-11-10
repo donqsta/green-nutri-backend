@@ -92,8 +92,27 @@ export const createProductWithUpload = async (req: Request, res: Response) => {
     }
 
     try {
+      // Auto-generate slug if not provided
+      let slug = req.body.slug;
+      if (!slug) {
+        slug = req.body.name
+          .toLowerCase()
+          .replace(/[áàảãạăắằẳẵặâấầẩẫậ]/g, 'a')
+          .replace(/[éèẻẽẹêếềểễệ]/g, 'e')
+          .replace(/[íìỉĩị]/g, 'i')
+          .replace(/[óòỏõọôốồổỗộơớờởỡợ]/g, 'o')
+          .replace(/[úùủũụưứừửữự]/g, 'u')
+          .replace(/[ýỳỷỹỵ]/g, 'y')
+          .replace(/[đ]/g, 'd')
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .trim('-');
+      }
+
       const productData: any = {
         ...req.body,
+        slug,
         price: parseInt(req.body.price),
         salePrice: parseInt(req.body.salePrice) || undefined,
         originalPrice: parseInt(req.body.originalPrice) || parseInt(req.body.price),
@@ -107,6 +126,9 @@ export const createProductWithUpload = async (req: Request, res: Response) => {
         productData.image = getFileUrl(req.file.filename);
       } else if (req.body.imageUrl) {
         productData.image = req.body.imageUrl;
+      } else {
+        // Default image if none provided
+        productData.image = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDIwMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zz4KPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiMwNjgyNDIiLz4KPHRleHQgeD0iMTAwIiB5PSI2MCIgZmlsbD0iI0ZGRkRkZGIiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgdGV4dC1hbmNob3IgPSJtaWRkbGUiPlByb2R1Y3Q8L3RleHQ+Cjwvc3ZnPgo=';
       }
 
       // Handle variants
@@ -211,15 +233,40 @@ export const updateProductWithUpload = async (req: Request, res: Response) => {
     }
 
     try {
+      // Auto-generate slug if not provided
+      let slug = req.body.slug;
+      if (!slug && req.body.name) {
+        slug = req.body.name
+          .toLowerCase()
+          .replace(/[áàảãạăắằẳẵặâấầẩẫậ]/g, 'a')
+          .replace(/[éèẻẽẹêếềểễệ]/g, 'e')
+          .replace(/[íìỉĩị]/g, 'i')
+          .replace(/[óòỏõọôốồổỗộơớờởỡợ]/g, 'o')
+          .replace(/[úùủũụưứừửữự]/g, 'u')
+          .replace(/[ýỳỷỹỵ]/g, 'y')
+          .replace(/[đ]/g, 'd')
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .trim('-');
+      }
+
       const productData: any = {
         ...req.body,
-        price: parseInt(req.body.price),
-        salePrice: parseInt(req.body.salePrice) || undefined,
-        originalPrice: parseInt(req.body.originalPrice) || parseInt(req.body.price),
-        stock: parseInt(req.body.stock),
-        isActive: req.body.isActive === 'on',
-        isFeatured: req.body.isFeatured === 'on'
       };
+
+      // Only include slug if generated
+      if (slug) {
+        productData.slug = slug;
+      }
+
+      // Parse numeric fields
+      productData.price = parseInt(req.body.price);
+      productData.salePrice = parseInt(req.body.salePrice) || undefined;
+      productData.originalPrice = parseInt(req.body.originalPrice) || parseInt(req.body.price);
+      productData.stock = parseInt(req.body.stock);
+      productData.isActive = req.body.isActive === 'on';
+      productData.isFeatured = req.body.isFeatured === 'on';
 
       // Handle uploaded image or URL
       if (req.file) {
