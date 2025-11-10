@@ -49,8 +49,12 @@ const hbs = create({
     add: function(a: number, b: number) {
       return a + b;
     },
-    join: function(array: string[], separator: string) {
-      return array ? array.join(separator) : '';
+    join: function(array: any, separator: string) {
+      if (!array) return '';
+      if (Array.isArray(array)) {
+        return array.join(separator || ', ');
+      }
+      return String(array);
     },
     range: function(start: number, end: number) {
       const result = [];

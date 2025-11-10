@@ -14,9 +14,9 @@ router.get('/', adminController_1.getAdminDashboard);
 // Product routes
 router.get('/products', adminController_1.getProducts);
 router.get('/products/new', adminController_1.getCreateProductForm);
-router.post('/products', adminController_1.createProduct);
+router.post('/products', adminController_1.createProductWithUpload);
 router.get('/products/:id/edit', adminController_1.getEditProductForm);
-router.post('/products/:id', adminController_1.updateProduct);
+router.post('/products/:id', adminController_1.updateProductWithUpload);
 router.post('/products/:id/delete', adminController_1.deleteProduct);
 // Category routes
 router.get('/categories', adminController_1.getCategories);

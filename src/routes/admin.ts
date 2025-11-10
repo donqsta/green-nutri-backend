@@ -5,8 +5,10 @@ import {
   getProducts,
   getCreateProductForm,
   createProduct,
+  createProductWithUpload,
   getEditProductForm,
   updateProduct,
+  updateProductWithUpload,
   deleteProduct,
   getCategories,
   getCreateCategoryForm,
@@ -29,9 +31,9 @@ router.get('/', getAdminDashboard);
 // Product routes
 router.get('/products', getProducts);
 router.get('/products/new', getCreateProductForm);
-router.post('/products', createProduct);
+router.post('/products', createProductWithUpload);
 router.get('/products/:id/edit', getEditProductForm);
-router.post('/products/:id', updateProduct);
+router.post('/products/:id', updateProductWithUpload);
 router.post('/products/:id/delete', deleteProduct);
 
 // Category routes

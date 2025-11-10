@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteCategory = exports.updateCategory = exports.updateCategoryWithUpload = exports.getEditCategoryForm = exports.createCategory = exports.createCategoryWithUpload = exports.getCreateCategoryForm = exports.getCategories = exports.deleteProduct = exports.updateProduct = exports.getEditProductForm = exports.createProduct = exports.getCreateProductForm = exports.getProducts = exports.getAdminDashboard = void 0;
+exports.deleteCategory = exports.updateCategory = exports.updateCategoryWithUpload = exports.getEditCategoryForm = exports.createCategory = exports.createCategoryWithUpload = exports.getCreateCategoryForm = exports.getCategories = exports.deleteProduct = exports.updateProduct = exports.updateProductWithUpload = exports.getEditProductForm = exports.createProduct = exports.createProductWithUpload = exports.getCreateProductForm = exports.getProducts = exports.getAdminDashboard = void 0;
 const Product_1 = __importDefault(require("../models/Product"));
 const Category_1 = __importDefault(require("../models/Category"));
 const upload_1 = require("../middleware/upload");
@@ -79,6 +79,63 @@ const getCreateProductForm = async (req, res) => {
     }
 };
 exports.getCreateProductForm = getCreateProductForm;
+// Wrapper for createProduct with file upload
+const createProductWithUpload = async (req, res) => {
+    (0, upload_1.uploadSingle)(req, res, async (err) => {
+        if (err) {
+            console.error('Upload error:', err);
+            const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 });
+            return res.status(400).render('admin/product-form', {
+                title: 'Thêm Sản phẩm Mới - Green Nutri',
+                product: req.body,
+                categories,
+                isEdit: false,
+                error: 'File upload failed: ' + err.message
+            });
+        }
+        try {
+            const productData = {
+                ...req.body,
+                price: parseInt(req.body.price),
+                salePrice: parseInt(req.body.salePrice) || undefined,
+                originalPrice: parseInt(req.body.originalPrice) || parseInt(req.body.price),
+                stock: parseInt(req.body.stock),
+                isActive: req.body.isActive === 'on',
+                isFeatured: req.body.isFeatured === 'on'
+            };
+            // Handle uploaded image or URL
+            if (req.file) {
+                productData.image = (0, upload_1.getFileUrl)(req.file.filename);
+            }
+            else if (req.body.imageUrl) {
+                productData.image = req.body.imageUrl;
+            }
+            // Handle variants
+            if (req.body.variants && Array.isArray(req.body.variants)) {
+                productData.variants = req.body.variants;
+            }
+            // Handle sizes
+            if (req.body.sizes) {
+                productData.sizes = Array.isArray(req.body.sizes) ? req.body.sizes : req.body.sizes.split(',').map((s) => s.trim());
+            }
+            const product = new Product_1.default(productData);
+            await product.save();
+            res.redirect('/admin/products?success=Product created successfully');
+        }
+        catch (error) {
+            console.error('Create product error:', error);
+            const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 });
+            res.status(400).render('admin/product-form', {
+                title: 'Thêm Sản phẩm Mới - Green Nutri',
+                product: req.body,
+                categories,
+                isEdit: false,
+                error: 'Failed to create product. Please check your input.'
+            });
+        }
+    });
+};
+exports.createProductWithUpload = createProductWithUpload;
 const createProduct = async (req, res) => {
     try {
         const productData = {
@@ -133,6 +190,70 @@ const getEditProductForm = async (req, res) => {
     }
 };
 exports.getEditProductForm = getEditProductForm;
+// Wrapper for updateProduct with file upload
+const updateProductWithUpload = async (req, res) => {
+    (0, upload_1.uploadSingle)(req, res, async (err) => {
+        if (err) {
+            console.error('Upload error:', err);
+            const product = await Product_1.default.findById(req.params.id).populate('categoryId');
+            const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 });
+            return res.status(400).render('admin/product-form', {
+                title: `Chỉnh sửa ${product?.name} - Green Nutri`,
+                product: { ...product?.toObject(), ...req.body },
+                categories,
+                isEdit: true,
+                error: 'File upload failed: ' + err.message
+            });
+        }
+        try {
+            const productData = {
+                ...req.body,
+                price: parseInt(req.body.price),
+                salePrice: parseInt(req.body.salePrice) || undefined,
+                originalPrice: parseInt(req.body.originalPrice) || parseInt(req.body.price),
+                stock: parseInt(req.body.stock),
+                isActive: req.body.isActive === 'on',
+                isFeatured: req.body.isFeatured === 'on'
+            };
+            // Handle uploaded image or URL
+            if (req.file) {
+                productData.image = (0, upload_1.getFileUrl)(req.file.filename);
+            }
+            else if (req.body.imageUrl) {
+                productData.image = req.body.imageUrl;
+            }
+            // Handle variants
+            if (req.body.variants && Array.isArray(req.body.variants)) {
+                productData.variants = req.body.variants;
+            }
+            // Handle sizes
+            if (req.body.sizes) {
+                productData.sizes = Array.isArray(req.body.sizes) ? req.body.sizes : req.body.sizes.split(',').map((s) => s.trim());
+            }
+            const product = await Product_1.default.findByIdAndUpdate(req.params.id, productData, { new: true, runValidators: true });
+            if (!product) {
+                return res.status(404).render('admin/error', {
+                    title: 'Not Found',
+                    message: 'Product not found'
+                });
+            }
+            res.redirect('/admin/products?success=Product updated successfully');
+        }
+        catch (error) {
+            console.error('Update product error:', error);
+            const product = await Product_1.default.findById(req.params.id).populate('categoryId');
+            const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 });
+            res.status(400).render('admin/product-form', {
+                title: `Chỉnh sửa ${product?.name} - Green Nutri`,
+                product: { ...product?.toObject(), ...req.body },
+                categories,
+                isEdit: true,
+                error: 'Failed to update product. Please check your input.'
+            });
+        }
+    });
+};
+exports.updateProductWithUpload = updateProductWithUpload;
 const updateProduct = async (req, res) => {
     try {
         const productData = {

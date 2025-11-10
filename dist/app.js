@@ -50,7 +50,12 @@ const hbs = (0, express_handlebars_1.create)({
             return a + b;
         },
         join: function (array, separator) {
-            return array ? array.join(separator) : '';
+            if (!array)
+                return '';
+            if (Array.isArray(array)) {
+                return array.join(separator || ', ');
+            }
+            return String(array);
         },
         range: function (start, end) {
             const result = [];

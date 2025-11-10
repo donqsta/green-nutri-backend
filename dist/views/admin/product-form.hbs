@@ -13,7 +13,7 @@
                 </div>
                 {{/if}}
 
-                <form method="POST" action="{{#if isEdit}}/admin/products/{{product._id}}{{else}}/admin/products{{/if}}">
+                <form method="POST" action="{{#if isEdit}}/admin/products/{{product._id}}{{else}}/admin/products{{/if}}" enctype="multipart/form-data">
                     <!-- Basic Information -->
                     <div class="row mb-4">
                         <div class="col-12">
@@ -71,9 +71,46 @@
                                    value="{{product.stock}}" min="0" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="image" class="form-label">URL hình ảnh</label>
-                            <input type="url" class="form-control" id="image" name="image"
+                            <label for="imageFile" class="form-label">Upload hình ảnh</label>
+                            <input type="file" class="form-control" id="imageFile" name="image"
+                                   accept="image/*" onchange="previewImage(event)">
+                            <div class="form-text">Hoặc nhập URL bên dưới</div>
+                        </div>
+                    </div>
+
+                    <!-- Image URL (alternative) -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <label for="imageUrl" class="form-label">URL hình ảnh (tùy chọn)</label>
+                            <input type="url" class="form-control" id="imageUrl" name="imageUrl"
                                    value="{{product.image}}" placeholder="https://example.com/image.jpg">
+                            <div class="form-text">Sử dụng nếu không upload file</div>
+                        </div>
+                    </div>
+
+                    <!-- Image Preview -->
+                    <div class="row mb-4" id="imagePreviewContainer" style="display: none;">
+                        <div class="col-12">
+                            <label class="form-label">Xem trước hình ảnh</label>
+                            <div class="text-center">
+                                <img id="imagePreview" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; border-radius: 4px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hình ảnh bổ sung -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">Hình ảnh bổ sung</h5>
+                            <div class="row">
+                                {{#if product.images}}
+                                    {{#each product.images}}
+                                    <div class="col-md-3 mb-3">
+                                        <img src="{{this}}" alt="Product image" style="width: 100%; height: 100px; object-fit: cover; border-radius: 4px;">
+                                    </div>
+                                    {{/each}}
+                                {{/if}}
+                            </div>
                         </div>
                     </div>
 
@@ -165,6 +202,60 @@ document.getElementById('name').addEventListener('input', function() {
         .trim('-');
 
     document.getElementById('slug').value = slug;
+});
+
+// Image preview functionality
+function previewImage(event) {
+    const file = event.target.files[0];
+    const previewContainer = document.getElementById('imagePreviewContainer');
+    const preview = document.getElementById('imagePreview');
+    const urlInput = document.getElementById('imageUrl');
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            previewContainer.style.display = 'block';
+            // Clear URL input when file is selected
+            urlInput.value = '';
+        }
+        reader.readAsDataURL(file);
+    } else {
+        previewContainer.style.display = 'none';
+        preview.src = '';
+    }
+}
+
+// Handle URL input change
+document.getElementById('imageUrl').addEventListener('input', function() {
+    const url = this.value;
+    const previewContainer = document.getElementById('imagePreviewContainer');
+    const preview = document.getElementById('imagePreview');
+    const fileInput = document.getElementById('imageFile');
+
+    if (url) {
+        preview.src = url;
+        previewContainer.style.display = 'block';
+        // Clear file input when URL is entered
+        fileInput.value = '';
+    } else {
+        previewContainer.style.display = 'none';
+        preview.src = '';
+    }
+});
+
+// Show existing image on page load (for edit mode)
+document.addEventListener('DOMContentLoaded', function() {
+    const existingImage = '{{product.image}}';
+    if (existingImage && existingImage !== '') {
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const preview = document.getElementById('imagePreview');
+        const urlInput = document.getElementById('imageUrl');
+
+        preview.src = existingImage;
+        previewContainer.style.display = 'block';
+        urlInput.value = existingImage;
+    }
 });
 
 // Handlebars helpers
