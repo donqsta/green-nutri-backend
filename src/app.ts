@@ -28,7 +28,34 @@ const hbs = create({
   defaultLayout: 'main',
   layoutsDir: path.join(__dirname, 'views/layouts'),
   partialsDir: path.join(__dirname, 'views/partials'),
-  extname: '.hbs'
+  extname: '.hbs',
+  helpers: {
+    formatPrice: function(price: number) {
+      return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+      }).format(price);
+    },
+    eq: function(a: any, b: any) {
+      return a === b;
+    },
+    subtract: function(a: number, b: number) {
+      return a - b;
+    },
+    add: function(a: number, b: number) {
+      return a + b;
+    },
+    join: function(array: string[], separator: string) {
+      return array ? array.join(separator) : '';
+    },
+    range: function(start: number, end: number) {
+      const result = [];
+      for (let i = start; i <= end; i++) {
+        result.push(i);
+      }
+      return result;
+    }
+  }
 });
 
 app.engine('hbs', hbs.engine);

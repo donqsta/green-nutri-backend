@@ -28,7 +28,34 @@ const hbs = (0, express_handlebars_1.create)({
     defaultLayout: 'main',
     layoutsDir: path_1.default.join(__dirname, 'views/layouts'),
     partialsDir: path_1.default.join(__dirname, 'views/partials'),
-    extname: '.hbs'
+    extname: '.hbs',
+    helpers: {
+        formatPrice: function (price) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(price);
+        },
+        eq: function (a, b) {
+            return a === b;
+        },
+        subtract: function (a, b) {
+            return a - b;
+        },
+        add: function (a, b) {
+            return a + b;
+        },
+        join: function (array, separator) {
+            return array ? array.join(separator) : '';
+        },
+        range: function (start, end) {
+            const result = [];
+            for (let i = start; i <= end; i++) {
+                result.push(i);
+            }
+            return result;
+        }
+    }
 });
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
