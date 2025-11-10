@@ -209,9 +209,28 @@ export const getCreateCategoryForm = (req: Request, res: Response) => {
 
 export const createCategory = async (req: Request, res: Response) => {
   try {
+    // Auto-generate slug if not provided
+    let slug = req.body.slug;
+    if (!slug) {
+      slug = req.body.name
+        .toLowerCase()
+        .replace(/[áàảãạăắằẳẵặâấầẩẫậ]/g, 'a')
+        .replace(/[éèẻẽẹêếềểễệ]/g, 'e')
+        .replace(/[íìỉĩị]/g, 'i')
+        .replace(/[óòỏõọôốồổỗộơớờởỡợ]/g, 'o')
+        .replace(/[úùủũụưứừửữự]/g, 'u')
+        .replace(/[ýỳỷỹỵ]/g, 'y')
+        .replace(/[đ]/g, 'd')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim('-');
+    }
+
     const categoryData = {
       ...req.body,
-      order: parseInt(req.body.order),
+      slug,
+      order: parseInt(req.body.order) || 0,
       isActive: req.body.isActive === 'on'
     };
 
@@ -219,13 +238,19 @@ export const createCategory = async (req: Request, res: Response) => {
     await category.save();
 
     res.redirect('/admin/categories?success=Category created successfully');
-  } catch (error) {
+  } catch (error: any) {
     console.error('Create category error:', error);
+
+    let errorMessage = 'Failed to create category. Please check your input.';
+    if (error.code === 11000 && error.keyPattern?.slug) {
+      errorMessage = 'Slug already exists. Please use a different name or slug.';
+    }
+
     res.status(400).render('admin/category-form', {
       title: 'Thêm Danh mục Mới - Green Nutri',
-      category: req.body,
+      category: { ...req.body, slug },
       isEdit: false,
-      error: 'Failed to create category. Please check your input.'
+      error: errorMessage
     });
   }
 };
