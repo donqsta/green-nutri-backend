@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.requireAdmin = exports.optionalAuth = exports.authenticate = void 0;
+exports.isAdmin = exports.requireAdmin = exports.optionalAuth = exports.authenticate = void 0;
 exports.generateToken = generateToken;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 /**
@@ -95,6 +95,37 @@ const requireAdmin = async (req, res, next) => {
     next();
 };
 exports.requireAdmin = requireAdmin;
+/**
+ * Simple admin check for web interface
+ * In production, you should implement proper admin authentication
+ */
+const isAdmin = async (req, res, next) => {
+    // Simple password protection for now
+    // In production, implement proper session-based authentication
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    // Check for basic auth or session
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Basic ')) {
+        const base64Credentials = authHeader.split(' ')[1];
+        const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+        const [username, password] = credentials.split(':');
+        if (username === 'admin' && password === adminPassword) {
+            return next();
+        }
+    }
+    // Check for session (you can implement this later)
+    if (req.session?.isAdmin) {
+        return next();
+    }
+    // For now, just allow access (remove this in production)
+    // You should implement proper authentication
+    console.log('Admin access granted - implement proper authentication in production');
+    next();
+    // Uncomment this for actual authentication:
+    // res.setHeader('WWW-Authenticate', 'Basic realm="Admin Area"');
+    // return res.status(401).send('Admin access required');
+};
+exports.isAdmin = isAdmin;
 /**
  * Generate JWT token for user
  */

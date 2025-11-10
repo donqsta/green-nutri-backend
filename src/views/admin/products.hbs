@@ -1,0 +1,142 @@
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold">Quản lý Sản phẩm</h6>
+        <a href="/admin/products/new" class="btn btn-success btn-green">
+            <i class="bi bi-plus-lg me-1"></i>Thêm sản phẩm mới
+        </a>
+    </div>
+    <div class="card-body">
+        {{#if products.length}}
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Hình ảnh</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Danh mục</th>
+                        <th>Giá</th>
+                        <th>Tồn kho</th>
+                        <th>Nổi bật</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each products}}
+                    <tr>
+                        <td>
+                            <img src="{{image}}" alt="{{name}}" style="width: 50px; height: 50px; object-fit: cover;"
+                                 onerror="this.src='https://via.placeholder.com/50x50/0C8242/FFFFFF?text=No+Image'">
+                        </td>
+                        <td>
+                            <strong>{{name}}</strong>
+                            {{#if slug}}<br><small class="text-muted">{{slug}}</small>{{/if}}
+                        </td>
+                        <td>
+                            {{#if category}}
+                                <span class="badge bg-info">{{category.name}}</span>
+                            {{else}}
+                                <span class="text-muted">Không có</span>
+                            {{/if}}
+                        </td>
+                        <td>
+                            <div>{{formatPrice salePrice}}</div>
+                            {{#if originalPrice}}
+                                <small class="text-decoration-line-through text-muted">{{formatPrice originalPrice}}</small>
+                            {{/if}}
+                        </td>
+                        <td>
+                            <span class="badge {{#if stock}}bg-success{{else}}bg-danger{{/if}}">
+                                {{stock}}
+                            </span>
+                        </td>
+                        <td>
+                            {{#if isFeatured}}
+                                <i class="bi bi-star-fill text-warning"></i>
+                            {{else}}
+                                <i class="bi bi-star text-muted"></i>
+                            {{/if}}
+                        </td>
+                        <td>
+                            {{#if isActive}}
+                                <span class="badge bg-success">Hoạt động</span>
+                            {{else}}
+                                <span class="badge bg-secondary">Ngừng</span>
+                            {{/if}}
+                        </td>
+                        <td class="table-actions">
+                            <a href="/admin/products/{{_id}}/edit" class="btn btn-sm btn-primary" title="Chỉnh sửa">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form method="POST" action="/admin/products/{{_id}}/delete" style="display: inline;"
+                                  onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">
+                                <button type="submit" class="btn btn-sm btn-danger" title="Xóa">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {{#if totalPages}}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {{#if hasPrev}}
+                <li class="page-item">
+                    <a class="page-link" href="/admin/products?page={{subtract currentPage 1}}">Trước</a>
+                </li>
+                {{/if}}
+
+                {{#each (range 1 totalPages)}}
+                <li class="page-item {{#if (eq this ../currentPage)}}active{{/if}}">
+                    <a class="page-link" href="/admin/products?page={{this}}">{{this}}</a>
+                </li>
+                {{/each}}
+
+                {{#if hasNext}}
+                <li class="page-item">
+                    <a class="page-link" href="/admin/products?page={{add currentPage 1}}">Sau</a>
+                </li>
+                {{/if}}
+            </ul>
+        </nav>
+        {{/if}}
+        {{else}}
+        <div class="text-center py-5">
+            <i class="bi bi-box fa-4x text-gray-300 mb-3"></i>
+            <h5 class="text-muted">Chưa có sản phẩm nào</h5>
+            <p class="text-muted">Bắt đầu bằng cách thêm sản phẩm đầu tiên vào cửa hàng của bạn</p>
+            <a href="/admin/products/new" class="btn btn-success btn-green">
+                <i class="bi bi-plus-lg me-1"></i>Thêm sản phẩm đầu tiên
+            </a>
+        </div>
+        {{/if}}
+    </div>
+</div>
+
+<script>
+// Helper functions
+function formatPrice(price) {
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+    }).format(price);
+}
+
+// Handlebars helpers (if not globally registered)
+Handlebars.registerHelper('formatPrice', formatPrice);
+Handlebars.registerHelper('subtract', function(a, b) { return a - b; });
+Handlebars.registerHelper('add', function(a, b) { return a + b; });
+Handlebars.registerHelper('eq', function(a, b) { return a === b; });
+Handlebars.registerHelper('range', function(start, end) {
+    const result = [];
+    for (let i = start; i <= end; i++) {
+        result.push(i);
+    }
+    return result;
+});
+</script>

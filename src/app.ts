@@ -3,6 +3,9 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import { create } from 'express-handlebars';
+import session from 'express-session';
+import path from 'path';
 
 // Load environment variables
 dotenv.config();
@@ -13,14 +16,40 @@ import categoryRoutes from './routes/categories';
 import authRoutes from './routes/auth';
 import cartRoutes from './routes/cart';
 import orderRoutes from './routes/orders';
+import adminRoutes from './routes/admin';
 
 // Middleware
 import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
 
-// Security middleware
-app.use(helmet());
+// View engine setup
+const hbs = create({
+  defaultLayout: 'main',
+  layoutsDir: path.join(__dirname, 'views/layouts'),
+  partialsDir: path.join(__dirname, 'views/partials'),
+  extname: '.hbs'
+});
+
+app.engine('hbs', hbs.engine);
+app.set('view engine', 'hbs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Session middleware for admin
+app.use(session({
+  secret: process.env.JWT_SECRET || 'admin-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Security middleware (but disable contentSecurityPolicy for admin views)
+app.use(helmet({
+  contentSecurityPolicy: false
+}));
 
 // CORS configuration
 app.use(cors({
@@ -51,6 +80,9 @@ app.use('/v1/categories', categoryRoutes);
 app.use('/v1/auth', authRoutes);
 app.use('/v1/cart', cartRoutes);
 app.use('/v1/orders', orderRoutes);
+
+// Admin routes
+app.use('/admin', adminRoutes);
 
 // 404 handler
 app.use((req, res) => {

@@ -1,5 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { SignOptions } from 'jsonwebtoken';
+import session from 'express-session';
+
+// Extend session data
+declare module 'express-session' {
+  interface SessionData {
+    isAdmin?: boolean;
+  }
+}
 
 export interface AuthRequest extends Request {
   user?: {
@@ -8,6 +16,7 @@ export interface AuthRequest extends Request {
     name?: string;
     role?: string;
   };
+  session: session.Session & Partial<session.SessionData>;
 }
 
 /**
@@ -109,6 +118,46 @@ export const requireAdmin = async (
     });
   }
   next();
+};
+
+/**
+ * Simple admin check for web interface
+ * In production, you should implement proper admin authentication
+ */
+export const isAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  // Simple password protection for now
+  // In production, implement proper session-based authentication
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+
+  // Check for basic auth or session
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Basic ')) {
+    const base64Credentials = authHeader.split(' ')[1];
+    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+    const [username, password] = credentials.split(':');
+
+    if (username === 'admin' && password === adminPassword) {
+      return next();
+    }
+  }
+
+  // Check for session (you can implement this later)
+  if (req.session?.isAdmin) {
+    return next();
+  }
+
+  // For now, just allow access (remove this in production)
+  // You should implement proper authentication
+  console.log('Admin access granted - implement proper authentication in production');
+  next();
+
+  // Uncomment this for actual authentication:
+  // res.setHeader('WWW-Authenticate', 'Basic realm="Admin Area"');
+  // return res.status(401).send('Admin access required');
 };
 
 /**

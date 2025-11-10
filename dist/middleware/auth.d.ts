@@ -1,4 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
+import session from 'express-session';
+declare module 'express-session' {
+    interface SessionData {
+        isAdmin?: boolean;
+    }
+}
 export interface AuthRequest extends Request {
     user?: {
         id: string;
@@ -6,6 +12,7 @@ export interface AuthRequest extends Request {
         name?: string;
         role?: string;
     };
+    session: session.Session & Partial<session.SessionData>;
 }
 /**
  * Authenticate user with JWT token
@@ -20,6 +27,11 @@ export declare const optionalAuth: (req: AuthRequest, res: Response, next: NextF
  * Require admin role
  */
 export declare const requireAdmin: (req: AuthRequest, res: Response, next: NextFunction) => Promise<Response<any, Record<string, any>> | undefined>;
+/**
+ * Simple admin check for web interface
+ * In production, you should implement proper admin authentication
+ */
+export declare const isAdmin: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 /**
  * Generate JWT token for user
  */

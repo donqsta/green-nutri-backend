@@ -1,0 +1,179 @@
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2 stats-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Tổng Sản phẩm
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{productCount}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-box fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2 stats-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Danh mục
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{categoryCount}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-tags fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2 stats-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Đơn hàng
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">0</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-cart fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2 stats-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Doanh thu
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">0₫</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-currency-dollar fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Products -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold">Sản phẩm gần đây</h6>
+                <a href="/admin/products" class="btn btn-sm btn-outline-success">Xem tất cả</a>
+            </div>
+            <div class="card-body">
+                {{#if recentProducts.length}}
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Tên sản phẩm</th>
+                                <th>Giá</th>
+                                <th>Tồn kho</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each recentProducts}}
+                            <tr>
+                                <td>{{name}}</td>
+                                <td>{{formatPrice salePrice}}</td>
+                                <td>{{stock}}</td>
+                                <td>
+                                    {{#if isActive}}
+                                        <span class="badge bg-success">Hoạt động</span>
+                                    {{else}}
+                                        <span class="badge bg-secondary">Ngừng</span>
+                                    {{/if}}
+                                </td>
+                                <td class="table-actions">
+                                    <a href="/admin/products/{{_id}}/edit" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+                {{else}}
+                <div class="text-center py-4">
+                    <i class="bi bi-box fa-3x text-gray-300 mb-3"></i>
+                    <p class="text-muted">Chưa có sản phẩm nào</p>
+                    <a href="/admin/products/new" class="btn btn-success btn-green">
+                        <i class="bi bi-plus-lg me-1"></i>Thêm sản phẩm đầu tiên
+                    </a>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">Hướng dẫn nhanh</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="/admin/products/new" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1"><i class="bi bi-plus-circle me-2"></i>Thêm sản phẩm</h6>
+                        </div>
+                        <p class="mb-1">Thêm sản phẩm mới vào cửa hàng</p>
+                    </a>
+                    <a href="/admin/categories" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1"><i class="bi bi-tags me-2"></i>Quản lý danh mục</h6>
+                        </div>
+                        <p class="mb-1">Tạo và chỉnh sửa danh mục sản phẩm</p>
+                    </a>
+                    <a href="/admin/products" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1"><i class="bi bi-box me-2"></i>Quản lý sản phẩm</h6>
+                        </div>
+                        <p class="mb-1">Xem và chỉnh sửa tất cả sản phẩm</p>
+                    </a>
+                    <a href="/" target="_blank" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1"><i class="bi bi-shop me-2"></i>Xem cửa hàng</h6>
+                        </div>
+                        <p class="mb-1">Xem giao diện người dùng</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Helper function for price formatting
+if (typeof formatPrice === 'undefined') {
+    function formatPrice(price) {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(price);
+    }
+}
+</script>

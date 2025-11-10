@@ -1,0 +1,175 @@
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">
+                    {{#if isEdit}}Chỉnh sửa sản phẩm{{else}}Thêm sản phẩm mới{{/if}}
+                </h6>
+            </div>
+            <div class="card-body">
+                {{#if error}}
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>{{error}}
+                </div>
+                {{/if}}
+
+                <form method="POST" action="{{#if isEdit}}/admin/products/{{product._id}}{{else}}/admin/products{{/if}}">
+                    <!-- Basic Information -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">Thông tin cơ bản</h5>
+                        </div>
+                        <div class="col-md-8 mb-3">
+                            <label for="name" class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name"
+                                   value="{{product.name}}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="slug" class="form-label">Slug (URL)</label>
+                            <input type="text" class="form-control" id="slug" name="slug"
+                                   value="{{product.slug}}" placeholder="ten-san-pham">
+                            <div class="form-text">Để trống để tự động tạo</div>
+                        </div>
+                    </div>
+
+                    <!-- Category and Pricing -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">Giá và danh mục</h5>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="categoryId" class="form-label">Danh mục <span class="text-danger">*</span></label>
+                            <select class="form-select" id="categoryId" name="categoryId" required>
+                                <option value="">Chọn danh mục</option>
+                                {{#each categories}}
+                                <option value="{{_id}}" {{#if (eq _id ../product.categoryId)}}selected{{/if}}>
+                                    {{name}}
+                                </option>
+                                {{/each}}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="price" class="form-label">Giá bán <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="price" name="salePrice"
+                                   value="{{product.salePrice}}" min="0" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="originalPrice" class="form-label">Giá gốc</label>
+                            <input type="number" class="form-control" id="originalPrice" name="originalPrice"
+                                   value="{{product.originalPrice}}" min="0">
+                        </div>
+                    </div>
+
+                    <!-- Inventory and Images -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">Tồn kho và hình ảnh</h5>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="stock" class="form-label">Số lượng tồn kho <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="stock" name="stock"
+                                   value="{{product.stock}}" min="0" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="image" class="form-label">URL hình ảnh</label>
+                            <input type="url" class="form-control" id="image" name="image"
+                                   value="{{product.image}}" placeholder="https://example.com/image.jpg">
+                        </div>
+                    </div>
+
+                    <!-- Options -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">Tùy chọn hiển thị</h5>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="isActive" name="isActive"
+                                       {{#if product.isActive}}checked{{/if}}>
+                                <label class="form-check-label" for="isActive">
+                                    Hiển thị sản phẩm
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="isFeatured" name="isFeatured"
+                                       {{#if product.isFeatured}}checked{{/if}}>
+                                <label class="form-check-label" for="isFeatured">
+                                    Sản phẩm nổi bật
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sizes -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">Kích cỡ</h5>
+                            <p class="text-muted">Nhập các kích cỡ, cách nhau bằng dấu phẩy (ví dụ: 250ml, 500ml, 1L)</p>
+                            <input type="text" class="form-control" id="sizes" name="sizes"
+                                   value="{{#if product.sizes}}{{join product.sizes ", "}}{{/if}}"
+                                   placeholder="250ml, 500ml, 1L">
+                        </div>
+                    </div>
+
+                    <!-- Product Details -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">Mô tả chi tiết</h5>
+                            <div class="mb-3">
+                                <label for="details" class="form-label">Mô tả sản phẩm</label>
+                                <textarea class="form-control" id="details" name="details" rows="6"
+                                          placeholder="Nhập mô tả chi tiết về sản phẩm...">{{#if product.details}}{{#each product.details}}{{content}}&#10;&#10;{{/each}}{{/if}}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a href="/admin/products" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left me-1"></i>Quay lại
+                                </a>
+                                <div>
+                                    <button type="submit" class="btn btn-success btn-green">
+                                        <i class="bi bi-check-lg me-1"></i>
+                                        {{#if isEdit}}Cập nhật sản phẩm{{else}}Thêm sản phẩm{{/if}}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-generate slug from name
+document.getElementById('name').addEventListener('input', function() {
+    const name = this.value;
+    const slug = name.toLowerCase()
+        .replace(/[áàảãạăắằẳẵặâấầẩẫậ]/g, 'a')
+        .replace(/[éèẻẽẹêếềểễệ]/g, 'e')
+        .replace(/[íìỉĩị]/g, 'i')
+        .replace(/[óòỏõọôốồổỗộơớờởỡợ]/g, 'o')
+        .replace(/[úùủũụưứừửữự]/g, 'u')
+        .replace(/[ýỳỷỹỵ]/g, 'y')
+        .replace(/[đ]/g, 'd')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim('-');
+
+    document.getElementById('slug').value = slug;
+});
+
+// Handlebars helpers
+Handlebars.registerHelper('eq', function(a, b) { return a === b; });
+Handlebars.registerHelper('join', function(array, separator) {
+    return array ? array.join(separator) : '';
+});
+</script>

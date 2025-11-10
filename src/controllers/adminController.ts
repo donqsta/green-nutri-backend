@@ -1,0 +1,301 @@
+import { Request, Response } from 'express';
+import Product from '../models/Product';
+import Category from '../models/Category';
+
+// Dashboard
+export const getAdminDashboard = async (req: Request, res: Response) => {
+  try {
+    const productCount = await Product.countDocuments();
+    const categoryCount = await Category.countDocuments();
+    const recentProducts = await Product.find().sort({ createdAt: -1 }).limit(5).populate('categoryId');
+
+    res.render('admin/dashboard', {
+      title: 'Admin Dashboard - Green Nutri',
+      productCount,
+      categoryCount,
+      recentProducts
+    });
+  } catch (error) {
+    console.error('Dashboard error:', error);
+    res.status(500).render('admin/error', {
+      title: 'Error',
+      message: 'Failed to load dashboard'
+    });
+  }
+};
+
+// Product Controllers
+export const getProducts = async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const products = await Product.find()
+      .populate('categoryId')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Product.countDocuments();
+    const totalPages = Math.ceil(total / limit);
+
+    res.render('admin/products', {
+      title: 'Quản lý Sản phẩm - Green Nutri',
+      products,
+      currentPage: page,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrev: page > 1
+    });
+  } catch (error) {
+    console.error('Get products error:', error);
+    res.status(500).render('admin/error', {
+      title: 'Error',
+      message: 'Failed to load products'
+    });
+  }
+};
+
+export const getCreateProductForm = async (req: Request, res: Response) => {
+  try {
+    const categories = await Category.find({ isActive: true }).sort({ order: 1 });
+    res.render('admin/product-form', {
+      title: 'Thêm Sản phẩm Mới - Green Nutri',
+      product: null,
+      categories,
+      isEdit: false
+    });
+  } catch (error) {
+    console.error('Get create form error:', error);
+    res.status(500).render('admin/error', {
+      title: 'Error',
+      message: 'Failed to load form'
+    });
+  }
+};
+
+export const createProduct = async (req: Request, res: Response) => {
+  try {
+    const productData = {
+      ...req.body,
+      price: parseInt(req.body.price),
+      salePrice: parseInt(req.body.salePrice),
+      originalPrice: parseInt(req.body.originalPrice) || parseInt(req.body.price),
+      stock: parseInt(req.body.stock),
+      isActive: req.body.isActive === 'on',
+      isFeatured: req.body.isFeatured === 'on'
+    };
+
+    const product = new Product(productData);
+    await product.save();
+
+    res.redirect('/admin/products?success=Product created successfully');
+  } catch (error) {
+    console.error('Create product error:', error);
+    const categories = await Category.find({ isActive: true }).sort({ order: 1 });
+    res.status(400).render('admin/product-form', {
+      title: 'Thêm Sản phẩm Mới - Green Nutri',
+      product: req.body,
+      categories,
+      isEdit: false,
+      error: 'Failed to create product. Please check your input.'
+    });
+  }
+};
+
+export const getEditProductForm = async (req: Request, res: Response) => {
+  try {
+    const product = await Product.findById(req.params.id).populate('categoryId');
+    const categories = await Category.find({ isActive: true }).sort({ order: 1 });
+
+    if (!product) {
+      return res.status(404).render('admin/error', {
+        title: 'Not Found',
+        message: 'Product not found'
+      });
+    }
+
+    res.render('admin/product-form', {
+      title: `Chỉnh sửa ${product.name} - Green Nutri`,
+      product,
+      categories,
+      isEdit: true
+    });
+  } catch (error) {
+    console.error('Get edit form error:', error);
+    res.status(500).render('admin/error', {
+      title: 'Error',
+      message: 'Failed to load product'
+    });
+  }
+};
+
+export const updateProduct = async (req: Request, res: Response) => {
+  try {
+    const productData = {
+      ...req.body,
+      price: parseInt(req.body.price),
+      salePrice: parseInt(req.body.salePrice),
+      originalPrice: parseInt(req.body.originalPrice) || parseInt(req.body.price),
+      stock: parseInt(req.body.stock),
+      isActive: req.body.isActive === 'on',
+      isFeatured: req.body.isFeatured === 'on'
+    };
+
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      productData,
+      { new: true, runValidators: true }
+    );
+
+    if (!product) {
+      return res.status(404).render('admin/error', {
+        title: 'Not Found',
+        message: 'Product not found'
+      });
+    }
+
+    res.redirect('/admin/products?success=Product updated successfully');
+  } catch (error) {
+    console.error('Update product error:', error);
+    const product = await Product.findById(req.params.id).populate('categoryId');
+    const categories = await Category.find({ isActive: true }).sort({ order: 1 });
+
+    res.status(400).render('admin/product-form', {
+      title: `Chỉnh sửa ${product?.name} - Green Nutri`,
+      product: { ...product?.toObject(), ...req.body },
+      categories,
+      isEdit: true,
+      error: 'Failed to update product. Please check your input.'
+    });
+  }
+};
+
+export const deleteProduct = async (req: Request, res: Response) => {
+  try {
+    await Product.findByIdAndDelete(req.params.id);
+    res.redirect('/admin/products?success=Product deleted successfully');
+  } catch (error) {
+    console.error('Delete product error:', error);
+    res.redirect('/admin/products?error=Failed to delete product');
+  }
+};
+
+// Category Controllers
+export const getCategories = async (req: Request, res: Response) => {
+  try {
+    const categories = await Category.find().sort({ order: 1 });
+    res.render('admin/categories', {
+      title: 'Quản lý Danh mục - Green Nutri',
+      categories
+    });
+  } catch (error) {
+    console.error('Get categories error:', error);
+    res.status(500).render('admin/error', {
+      title: 'Error',
+      message: 'Failed to load categories'
+    });
+  }
+};
+
+export const getCreateCategoryForm = (req: Request, res: Response) => {
+  res.render('admin/category-form', {
+    title: 'Thêm Danh mục Mới - Green Nutri',
+    category: null,
+    isEdit: false
+  });
+};
+
+export const createCategory = async (req: Request, res: Response) => {
+  try {
+    const categoryData = {
+      ...req.body,
+      order: parseInt(req.body.order),
+      isActive: req.body.isActive === 'on'
+    };
+
+    const category = new Category(categoryData);
+    await category.save();
+
+    res.redirect('/admin/categories?success=Category created successfully');
+  } catch (error) {
+    console.error('Create category error:', error);
+    res.status(400).render('admin/category-form', {
+      title: 'Thêm Danh mục Mới - Green Nutri',
+      category: req.body,
+      isEdit: false,
+      error: 'Failed to create category. Please check your input.'
+    });
+  }
+};
+
+export const getEditCategoryForm = async (req: Request, res: Response) => {
+  try {
+    const category = await Category.findById(req.params.id);
+
+    if (!category) {
+      return res.status(404).render('admin/error', {
+        title: 'Not Found',
+        message: 'Category not found'
+      });
+    }
+
+    res.render('admin/category-form', {
+      title: `Chỉnh sửa ${category.name} - Green Nutri`,
+      category,
+      isEdit: true
+    });
+  } catch (error) {
+    console.error('Get edit category form error:', error);
+    res.status(500).render('admin/error', {
+      title: 'Error',
+      message: 'Failed to load category'
+    });
+  }
+};
+
+export const updateCategory = async (req: Request, res: Response) => {
+  try {
+    const categoryData = {
+      ...req.body,
+      order: parseInt(req.body.order),
+      isActive: req.body.isActive === 'on'
+    };
+
+    const category = await Category.findByIdAndUpdate(
+      req.params.id,
+      categoryData,
+      { new: true, runValidators: true }
+    );
+
+    if (!category) {
+      return res.status(404).render('admin/error', {
+        title: 'Not Found',
+        message: 'Category not found'
+      });
+    }
+
+    res.redirect('/admin/categories?success=Category updated successfully');
+  } catch (error) {
+    console.error('Update category error:', error);
+    const category = await Category.findById(req.params.id);
+
+    res.status(400).render('admin/category-form', {
+      title: `Chỉnh sửa ${category?.name} - Green Nutri`,
+      category: { ...category?.toObject(), ...req.body },
+      isEdit: true,
+      error: 'Failed to update category. Please check your input.'
+    });
+  }
+};
+
+export const deleteCategory = async (req: Request, res: Response) => {
+  try {
+    await Category.findByIdAndDelete(req.params.id);
+    res.redirect('/admin/categories?success=Category deleted successfully');
+  } catch (error) {
+    console.error('Delete category error:', error);
+    res.redirect('/admin/categories?error=Failed to delete category');
+  }
+};

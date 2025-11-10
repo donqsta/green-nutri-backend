@@ -1,0 +1,15 @@
+import { Request, Response } from 'express';
+export declare const getAdminDashboard: (req: Request, res: Response) => Promise<void>;
+export declare const getProducts: (req: Request, res: Response) => Promise<void>;
+export declare const getCreateProductForm: (req: Request, res: Response) => Promise<void>;
+export declare const createProduct: (req: Request, res: Response) => Promise<void>;
+export declare const getEditProductForm: (req: Request, res: Response) => Promise<void>;
+export declare const updateProduct: (req: Request, res: Response) => Promise<void>;
+export declare const deleteProduct: (req: Request, res: Response) => Promise<void>;
+export declare const getCategories: (req: Request, res: Response) => Promise<void>;
+export declare const getCreateCategoryForm: (req: Request, res: Response) => void;
+export declare const createCategory: (req: Request, res: Response) => Promise<void>;
+export declare const getEditCategoryForm: (req: Request, res: Response) => Promise<void>;
+export declare const updateCategory: (req: Request, res: Response) => Promise<void>;
+export declare const deleteCategory: (req: Request, res: Response) => Promise<void>;
+//# sourceMappingURL=adminController.d.ts.map
