@@ -21,9 +21,9 @@ router.post('/products/:id/delete', adminController_1.deleteProduct);
 // Category routes
 router.get('/categories', adminController_1.getCategories);
 router.get('/categories/new', adminController_1.getCreateCategoryForm);
-router.post('/categories', adminController_1.createCategory);
+router.post('/categories', adminController_1.createCategoryWithUpload);
 router.get('/categories/:id/edit', adminController_1.getEditCategoryForm);
-router.post('/categories/:id', adminController_1.updateCategory);
+router.post('/categories/:id', adminController_1.updateCategoryWithUpload);
 router.post('/categories/:id/delete', adminController_1.deleteCategory);
 exports.default = router;
 //# sourceMappingURL=admin.js.map

@@ -11,8 +11,10 @@ import {
   getCategories,
   getCreateCategoryForm,
   createCategory,
+  createCategoryWithUpload,
   getEditCategoryForm,
   updateCategory,
+  updateCategoryWithUpload,
   deleteCategory
 } from '../controllers/adminController';
 
@@ -35,9 +37,9 @@ router.post('/products/:id/delete', deleteProduct);
 // Category routes
 router.get('/categories', getCategories);
 router.get('/categories/new', getCreateCategoryForm);
-router.post('/categories', createCategory);
+router.post('/categories', createCategoryWithUpload);
 router.get('/categories/:id/edit', getEditCategoryForm);
-router.post('/categories/:id', updateCategory);
+router.post('/categories/:id', updateCategoryWithUpload);
 router.post('/categories/:id/delete', deleteCategory);
 
 export default router;

@@ -3,9 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteCategory = exports.updateCategory = exports.getEditCategoryForm = exports.createCategory = exports.getCreateCategoryForm = exports.getCategories = exports.deleteProduct = exports.updateProduct = exports.getEditProductForm = exports.createProduct = exports.getCreateProductForm = exports.getProducts = exports.getAdminDashboard = void 0;
+exports.deleteCategory = exports.updateCategory = exports.updateCategoryWithUpload = exports.getEditCategoryForm = exports.createCategory = exports.createCategoryWithUpload = exports.getCreateCategoryForm = exports.getCategories = exports.deleteProduct = exports.updateProduct = exports.getEditProductForm = exports.createProduct = exports.getCreateProductForm = exports.getProducts = exports.getAdminDashboard = void 0;
 const Product_1 = __importDefault(require("../models/Product"));
 const Category_1 = __importDefault(require("../models/Category"));
+const upload_1 = require("../middleware/upload");
 // Dashboard
 const getAdminDashboard = async (req, res) => {
     try {
@@ -203,6 +204,69 @@ const getCreateCategoryForm = (req, res) => {
     });
 };
 exports.getCreateCategoryForm = getCreateCategoryForm;
+// Wrapper for createCategory with file upload
+const createCategoryWithUpload = async (req, res) => {
+    (0, upload_1.uploadSingle)(req, res, async (err) => {
+        if (err) {
+            console.error('Upload error:', err);
+            return res.status(400).render('admin/category-form', {
+                title: 'Thêm Danh mục Mới - Green Nutri',
+                category: req.body,
+                isEdit: false,
+                error: 'File upload failed: ' + err.message
+            });
+        }
+        try {
+            // Auto-generate slug if not provided
+            let slug = req.body.slug;
+            if (!slug) {
+                slug = req.body.name
+                    .toLowerCase()
+                    .replace(/[áàảãạăắằẳẵặâấầẩẫậ]/g, 'a')
+                    .replace(/[éèẻẽẹêếềểễệ]/g, 'e')
+                    .replace(/[íìỉĩị]/g, 'i')
+                    .replace(/[óòỏõọôốồổỗộơớờởỡợ]/g, 'o')
+                    .replace(/[úùủũụưứừửữự]/g, 'u')
+                    .replace(/[ýỳỷỹỵ]/g, 'y')
+                    .replace(/[đ]/g, 'd')
+                    .replace(/[^a-z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-')
+                    .trim('-');
+            }
+            const categoryData = {
+                ...req.body,
+                slug,
+                order: parseInt(req.body.order) || 0,
+                isActive: req.body.isActive === 'on'
+            };
+            // Handle uploaded image or URL
+            if (req.file) {
+                categoryData.image = (0, upload_1.getFileUrl)(req.file.filename);
+            }
+            else if (req.body.imageUrl) {
+                categoryData.image = req.body.imageUrl;
+            }
+            const category = new Category_1.default(categoryData);
+            await category.save();
+            res.redirect('/admin/categories?success=Category created successfully');
+        }
+        catch (error) {
+            console.error('Create category error:', error);
+            let errorMessage = 'Failed to create category. Please check your input.';
+            if (error.code === 11000 && error.keyPattern?.slug) {
+                errorMessage = 'Slug already exists. Please use a different name or slug.';
+            }
+            res.status(400).render('admin/category-form', {
+                title: 'Thêm Danh mục Mới - Green Nutri',
+                category: req.body,
+                isEdit: false,
+                error: errorMessage
+            });
+        }
+    });
+};
+exports.createCategoryWithUpload = createCategoryWithUpload;
 const createCategory = async (req, res) => {
     try {
         // Auto-generate slug if not provided
@@ -271,6 +335,54 @@ const getEditCategoryForm = async (req, res) => {
     }
 };
 exports.getEditCategoryForm = getEditCategoryForm;
+// Wrapper for updateCategory with file upload
+const updateCategoryWithUpload = async (req, res) => {
+    (0, upload_1.uploadSingle)(req, res, async (err) => {
+        if (err) {
+            console.error('Upload error:', err);
+            const category = await Category_1.default.findById(req.params.id);
+            return res.status(400).render('admin/category-form', {
+                title: `Chỉnh sửa ${category?.name} - Green Nutri`,
+                category: { ...category?.toObject(), ...req.body },
+                isEdit: true,
+                error: 'File upload failed: ' + err.message
+            });
+        }
+        try {
+            const categoryData = {
+                ...req.body,
+                order: parseInt(req.body.order),
+                isActive: req.body.isActive === 'on'
+            };
+            // Handle uploaded image or URL
+            if (req.file) {
+                categoryData.image = (0, upload_1.getFileUrl)(req.file.filename);
+            }
+            else if (req.body.imageUrl) {
+                categoryData.image = req.body.imageUrl;
+            }
+            const category = await Category_1.default.findByIdAndUpdate(req.params.id, categoryData, { new: true, runValidators: true });
+            if (!category) {
+                return res.status(404).render('admin/error', {
+                    title: 'Not Found',
+                    message: 'Category not found'
+                });
+            }
+            res.redirect('/admin/categories?success=Category updated successfully');
+        }
+        catch (error) {
+            console.error('Update category error:', error);
+            const category = await Category_1.default.findById(req.params.id);
+            res.status(400).render('admin/category-form', {
+                title: `Chỉnh sửa ${category?.name} - Green Nutri`,
+                category: { ...category?.toObject(), ...req.body },
+                isEdit: true,
+                error: 'Failed to update category. Please check your input.'
+            });
+        }
+    });
+};
+exports.updateCategoryWithUpload = updateCategoryWithUpload;
 const updateCategory = async (req, res) => {
     try {
         const categoryData = {

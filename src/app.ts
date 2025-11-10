@@ -95,6 +95,9 @@ app.use(express.urlencoded({ extended: true }));
 // Logging middleware
 app.use(morgan(process.env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 
+// Static files middleware
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({
