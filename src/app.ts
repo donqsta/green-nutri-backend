@@ -10,6 +10,9 @@ dotenv.config();
 // Routes
 import productRoutes from './routes/products';
 import categoryRoutes from './routes/categories';
+import authRoutes from './routes/auth';
+import cartRoutes from './routes/cart';
+import orderRoutes from './routes/orders';
 
 // Middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -45,6 +48,9 @@ app.get('/health', (req, res) => {
 // API Routes
 app.use('/v1/products', productRoutes);
 app.use('/v1/categories', categoryRoutes);
+app.use('/v1/auth', authRoutes);
+app.use('/v1/cart', cartRoutes);
+app.use('/v1/orders', orderRoutes);
 
 // 404 handler
 app.use((req, res) => {

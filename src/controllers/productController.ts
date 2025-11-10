@@ -38,7 +38,7 @@ export const getProducts = async (
       .lean();
 
     // Transform to match frontend format
-    const transformedProducts = products.map(p => ({
+    const transformedProducts = products.map((p: any) => ({
       ...p,
       category: {
         id: p.categoryId._id,
@@ -91,15 +91,16 @@ export const getProductById = async (
     }
 
     // Transform to match frontend format
+    const productData = product as any;
     const transformedProduct = {
-      ...product,
+      ...productData,
       category: {
-        id: product.categoryId._id,
-        name: product.categoryId.name,
-        image: product.categoryId.image
+        id: productData.categoryId._id,
+        name: productData.categoryId.name,
+        image: productData.categoryId.image
       },
-      originalPrice: product.salePrice ? product.price : undefined,
-      price: product.salePrice || product.price
+      originalPrice: productData.salePrice ? productData.price : undefined,
+      price: productData.salePrice || productData.price
     };
 
     res.json({
