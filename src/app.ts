@@ -92,11 +92,30 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
   'http://localhost:3000',
   'http://localhost:3001',
   'http://localhost:2999',
-  'https://green-nutri-backend-production.up.railway.app'
+  'https://green-nutri-backend-production.up.railway.app',
+  // Zalo Mini App domains
+  'https://miniapp.zaloplatforms.com',
+  'https://mini.zalo.me',
+  'https://h5.zalo.me'
 ];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+
+    // Allow configured origins
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+
+    // In production, allow Zalo Mini App domains and subdomains
+    if (process.env.NODE_ENV === 'production') {
+      if (origin.includes('zalo') || origin.includes('zalop') || origin.includes('miniapp')) {
+        return callback(null, true);
+      }
+    }
+
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
