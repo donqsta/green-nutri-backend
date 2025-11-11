@@ -63,7 +63,7 @@ const getProducts = async (req, res) => {
 exports.getProducts = getProducts;
 const getCreateProductForm = async (req, res) => {
     try {
-        const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 });
+        const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 }).lean();
         res.render('admin/product-form', {
             title: 'Thêm Sản phẩm Mới - Green Nutri',
             product: null,
@@ -85,7 +85,7 @@ const createProductWithUpload = async (req, res) => {
     (0, upload_1.uploadSingle)(req, res, async (err) => {
         if (err) {
             console.error('Upload error:', err);
-            const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 });
+            const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 }).lean();
             return res.status(400).render('admin/product-form', {
                 title: 'Thêm Sản phẩm Mới - Green Nutri',
                 product: req.body,
@@ -147,7 +147,7 @@ const createProductWithUpload = async (req, res) => {
         }
         catch (error) {
             console.error('Create product error:', error);
-            const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 });
+            const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 }).lean();
             res.status(400).render('admin/product-form', {
                 title: 'Thêm Sản phẩm Mới - Green Nutri',
                 product: req.body,
@@ -176,7 +176,7 @@ const createProduct = async (req, res) => {
     }
     catch (error) {
         console.error('Create product error:', error);
-        const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 });
+        const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 }).lean();
         res.status(400).render('admin/product-form', {
             title: 'Thêm Sản phẩm Mới - Green Nutri',
             product: req.body,
@@ -190,7 +190,7 @@ exports.createProduct = createProduct;
 const getEditProductForm = async (req, res) => {
     try {
         const product = await Product_1.default.findById(req.params.id).populate('categoryId').lean();
-        const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 });
+        const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 }).lean();
         if (!product) {
             return res.status(404).render('admin/error', {
                 title: 'Not Found',
@@ -219,7 +219,7 @@ const updateProductWithUpload = async (req, res) => {
         if (err) {
             console.error('Upload error:', err);
             const product = await Product_1.default.findById(req.params.id).populate('categoryId').lean();
-            const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 });
+            const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 }).lean();
             return res.status(400).render('admin/product-form', {
                 title: `Chỉnh sửa ${product?.name} - Green Nutri`,
                 product: { ...product?.toObject(), ...req.body },
@@ -287,7 +287,7 @@ const updateProductWithUpload = async (req, res) => {
         catch (error) {
             console.error('Update product error:', error);
             const product = await Product_1.default.findById(req.params.id).populate('categoryId').lean();
-            const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 });
+            const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 }).lean();
             res.status(400).render('admin/product-form', {
                 title: `Chỉnh sửa ${product?.name} - Green Nutri`,
                 product: { ...product?.toObject(), ...req.body },
@@ -322,7 +322,7 @@ const updateProduct = async (req, res) => {
     catch (error) {
         console.error('Update product error:', error);
         const product = await Product_1.default.findById(req.params.id).populate('categoryId').lean();
-        const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 });
+        const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 }).lean();
         res.status(400).render('admin/product-form', {
             title: `Chỉnh sửa ${product?.name} - Green Nutri`,
             product: { ...product?.toObject(), ...req.body },
@@ -347,7 +347,7 @@ exports.deleteProduct = deleteProduct;
 // Category Controllers
 const getCategories = async (req, res) => {
     try {
-        const categories = await Category_1.default.find().sort({ order: 1 });
+        const categories = await Category_1.default.find().sort({ order: 1 }).lean();
         res.render('admin/categories', {
             title: 'Quản lý Danh mục - Green Nutri',
             categories
@@ -479,7 +479,7 @@ const createCategory = async (req, res) => {
 exports.createCategory = createCategory;
 const getEditCategoryForm = async (req, res) => {
     try {
-        const category = await Category_1.default.findById(req.params.id);
+        const category = await Category_1.default.findById(req.params.id).lean();
         if (!category) {
             return res.status(404).render('admin/error', {
                 title: 'Not Found',
@@ -506,7 +506,7 @@ const updateCategoryWithUpload = async (req, res) => {
     (0, upload_1.uploadSingle)(req, res, async (err) => {
         if (err) {
             console.error('Upload error:', err);
-            const category = await Category_1.default.findById(req.params.id);
+            const category = await Category_1.default.findById(req.params.id).lean();
             return res.status(400).render('admin/category-form', {
                 title: `Chỉnh sửa ${category?.name} - Green Nutri`,
                 category: { ...category?.toObject(), ...req.body },
@@ -538,7 +538,7 @@ const updateCategoryWithUpload = async (req, res) => {
         }
         catch (error) {
             console.error('Update category error:', error);
-            const category = await Category_1.default.findById(req.params.id);
+            const category = await Category_1.default.findById(req.params.id).lean();
             res.status(400).render('admin/category-form', {
                 title: `Chỉnh sửa ${category?.name} - Green Nutri`,
                 category: { ...category?.toObject(), ...req.body },
@@ -567,7 +567,7 @@ const updateCategory = async (req, res) => {
     }
     catch (error) {
         console.error('Update category error:', error);
-        const category = await Category_1.default.findById(req.params.id);
+        const category = await Category_1.default.findById(req.params.id).lean();
         res.status(400).render('admin/category-form', {
             title: `Chỉnh sửa ${category?.name} - Green Nutri`,
             category: { ...category?.toObject(), ...req.body },

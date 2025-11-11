@@ -61,7 +61,7 @@ export const getProducts = async (req: Request, res: Response) => {
 
 export const getCreateProductForm = async (req: Request, res: Response) => {
   try {
-    const categories = await Category.find({ isActive: true }).sort({ order: 1 });
+    const categories = await Category.find({ isActive: true }).sort({ order: 1 }).lean();
     res.render('admin/product-form', {
       title: 'Thêm Sản phẩm Mới - Green Nutri',
       product: null,
@@ -82,7 +82,7 @@ export const createProductWithUpload = async (req: Request, res: Response) => {
   uploadSingle(req, res, async (err: any) => {
     if (err) {
       console.error('Upload error:', err);
-      const categories = await Category.find({ isActive: true }).sort({ order: 1 });
+      const categories = await Category.find({ isActive: true }).sort({ order: 1 }).lean();
       return res.status(400).render('admin/product-form', {
         title: 'Thêm Sản phẩm Mới - Green Nutri',
         product: req.body,
@@ -148,7 +148,7 @@ export const createProductWithUpload = async (req: Request, res: Response) => {
       res.redirect('/admin/products?success=Product created successfully');
     } catch (error: any) {
       console.error('Create product error:', error);
-      const categories = await Category.find({ isActive: true }).sort({ order: 1 });
+      const categories = await Category.find({ isActive: true }).sort({ order: 1 }).lean();
 
       res.status(400).render('admin/product-form', {
         title: 'Thêm Sản phẩm Mới - Green Nutri',
@@ -179,7 +179,7 @@ export const createProduct = async (req: Request, res: Response) => {
     res.redirect('/admin/products?success=Product created successfully');
   } catch (error) {
     console.error('Create product error:', error);
-    const categories = await Category.find({ isActive: true }).sort({ order: 1 });
+    const categories = await Category.find({ isActive: true }).sort({ order: 1 }).lean();
     res.status(400).render('admin/product-form', {
       title: 'Thêm Sản phẩm Mới - Green Nutri',
       product: req.body,
@@ -193,7 +193,7 @@ export const createProduct = async (req: Request, res: Response) => {
 export const getEditProductForm = async (req: Request, res: Response) => {
   try {
     const product = await Product.findById(req.params.id).populate('categoryId').lean();
-    const categories = await Category.find({ isActive: true }).sort({ order: 1 });
+    const categories = await Category.find({ isActive: true }).sort({ order: 1 }).lean();
 
     if (!product) {
       return res.status(404).render('admin/error', {
@@ -223,7 +223,7 @@ export const updateProductWithUpload = async (req: Request, res: Response) => {
     if (err) {
       console.error('Upload error:', err);
       const product = await Product.findById(req.params.id).populate('categoryId').lean();
-      const categories = await Category.find({ isActive: true }).sort({ order: 1 });
+      const categories = await Category.find({ isActive: true }).sort({ order: 1 }).lean();
       return res.status(400).render('admin/product-form', {
         title: `Chỉnh sửa ${product?.name} - Green Nutri`,
         product: { ...product?.toObject(), ...req.body },
@@ -303,7 +303,7 @@ export const updateProductWithUpload = async (req: Request, res: Response) => {
     } catch (error) {
       console.error('Update product error:', error);
       const product = await Product.findById(req.params.id).populate('categoryId').lean();
-      const categories = await Category.find({ isActive: true }).sort({ order: 1 });
+      const categories = await Category.find({ isActive: true }).sort({ order: 1 }).lean();
 
       res.status(400).render('admin/product-form', {
         title: `Chỉnh sửa ${product?.name} - Green Nutri`,
@@ -345,7 +345,7 @@ export const updateProduct = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Update product error:', error);
     const product = await Product.findById(req.params.id).populate('categoryId').lean();
-    const categories = await Category.find({ isActive: true }).sort({ order: 1 });
+    const categories = await Category.find({ isActive: true }).sort({ order: 1 }).lean();
 
     res.status(400).render('admin/product-form', {
       title: `Chỉnh sửa ${product?.name} - Green Nutri`,
@@ -370,7 +370,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
 // Category Controllers
 export const getCategories = async (req: Request, res: Response) => {
   try {
-    const categories = await Category.find().sort({ order: 1 });
+    const categories = await Category.find().sort({ order: 1 }).lean();
     res.render('admin/categories', {
       title: 'Quản lý Danh mục - Green Nutri',
       categories
@@ -510,7 +510,7 @@ export const createCategory = async (req: Request, res: Response) => {
 
 export const getEditCategoryForm = async (req: Request, res: Response) => {
   try {
-    const category = await Category.findById(req.params.id);
+    const category = await Category.findById(req.params.id).lean();
 
     if (!category) {
       return res.status(404).render('admin/error', {
@@ -538,7 +538,7 @@ export const updateCategoryWithUpload = async (req: Request, res: Response) => {
   uploadSingle(req, res, async (err: any) => {
     if (err) {
       console.error('Upload error:', err);
-      const category = await Category.findById(req.params.id);
+      const category = await Category.findById(req.params.id).lean();
       return res.status(400).render('admin/category-form', {
         title: `Chỉnh sửa ${category?.name} - Green Nutri`,
         category: { ...category?.toObject(), ...req.body },
@@ -577,7 +577,7 @@ export const updateCategoryWithUpload = async (req: Request, res: Response) => {
       res.redirect('/admin/categories?success=Category updated successfully');
     } catch (error) {
       console.error('Update category error:', error);
-      const category = await Category.findById(req.params.id);
+      const category = await Category.findById(req.params.id).lean();
 
       res.status(400).render('admin/category-form', {
         title: `Chỉnh sửa ${category?.name} - Green Nutri`,
@@ -613,7 +613,7 @@ export const updateCategory = async (req: Request, res: Response) => {
     res.redirect('/admin/categories?success=Category updated successfully');
   } catch (error) {
     console.error('Update category error:', error);
-    const category = await Category.findById(req.params.id);
+    const category = await Category.findById(req.params.id).lean();
 
     res.status(400).render('admin/category-form', {
       title: `Chỉnh sửa ${category?.name} - Green Nutri`,
