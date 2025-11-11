@@ -97,7 +97,9 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
   // Zalo Mini App domains
   'https://miniapp.zaloplatforms.com',
   'https://mini.zalo.me',
-  'https://h5.zalo.me'
+  'https://h5.zalo.me',
+  'https://h5.zadn.vn',
+  'https://h5.zdn.vn'
 ];
 
 app.use(cors({
@@ -110,7 +112,7 @@ app.use(cors({
 
     // In production, allow Zalo Mini App domains and subdomains
     if (process.env.NODE_ENV === 'production') {
-      if (origin.includes('zalo') || origin.includes('zalop') || origin.includes('miniapp')) {
+      if (origin.includes('zalo') || origin.includes('zalop') || origin.includes('miniapp') || origin.includes('zadn') || origin.includes('zdn')) {
         return callback(null, true);
       }
     }
