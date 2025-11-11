@@ -91,6 +91,7 @@ app.use(helmet({
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
   'http://localhost:3000',
   'http://localhost:3001',
+  'http://localhost:2999',
   'https://green-nutri-backend-production.up.railway.app'
 ];
 
