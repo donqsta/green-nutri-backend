@@ -17,6 +17,7 @@ import authRoutes from './routes/auth';
 import cartRoutes from './routes/cart';
 import orderRoutes from './routes/orders';
 import adminRoutes from './routes/admin';
+import bannerRoutes from './routes/banners';
 
 // Middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -153,6 +154,7 @@ app.use('/v1/categories', categoryRoutes);
 app.use('/v1/auth', authRoutes);
 app.use('/v1/cart', cartRoutes);
 app.use('/v1/orders', orderRoutes);
+app.use('/v1/banners', bannerRoutes);
 
 // Admin routes
 app.use('/admin', adminRoutes);
