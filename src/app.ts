@@ -103,22 +103,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl)
-    if (!origin) return callback(null, true);
-
-    // Allow configured origins
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-
-    // In production, allow Zalo Mini App domains and subdomains
-    if (process.env.NODE_ENV === 'production') {
-      if (origin.includes('zalo') || origin.includes('zalop') || origin.includes('miniapp') || origin.includes('zadn') || origin.includes('zdn')) {
-        return callback(null, true);
-      }
-    }
-
-    callback(new Error('Not allowed by CORS'));
-  },
+  origin: process.env.NODE_ENV === 'production' ? true : allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
