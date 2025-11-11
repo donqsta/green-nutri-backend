@@ -257,10 +257,4 @@ document.addEventListener('DOMContentLoaded', function() {
         urlInput.value = existingImage;
     }
 });
-
-// Handlebars helpers
-Handlebars.registerHelper('eq', function(a, b) { return a === b; });
-Handlebars.registerHelper('join', function(array, separator) {
-    return array ? array.join(separator) : '';
-});
 </script>
