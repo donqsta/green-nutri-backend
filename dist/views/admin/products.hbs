@@ -118,25 +118,3 @@
     </div>
 </div>
 
-<script>
-// Helper functions
-function formatPrice(price) {
-    return new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND'
-    }).format(price);
-}
-
-// Handlebars helpers (if not globally registered)
-Handlebars.registerHelper('formatPrice', formatPrice);
-Handlebars.registerHelper('subtract', function(a, b) { return a - b; });
-Handlebars.registerHelper('add', function(a, b) { return a + b; });
-Handlebars.registerHelper('eq', function(a, b) { return a === b; });
-Handlebars.registerHelper('range', function(start, end) {
-    const result = [];
-    for (let i = start; i <= end; i++) {
-        result.push(i);
-    }
-    return result;
-});
-</script>
