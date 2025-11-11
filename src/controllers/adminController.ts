@@ -8,7 +8,7 @@ export const getAdminDashboard = async (req: Request, res: Response) => {
   try {
     const productCount = await Product.countDocuments();
     const categoryCount = await Category.countDocuments();
-    const recentProducts = await Product.find().sort({ createdAt: -1 }).limit(5).populate('categoryId');
+    const recentProducts = await Product.find().sort({ createdAt: -1 }).limit(5).populate('categoryId').lean();
 
     res.render('admin/dashboard', {
       title: 'Admin Dashboard - Green Nutri',
@@ -36,7 +36,8 @@ export const getProducts = async (req: Request, res: Response) => {
       .populate('categoryId')
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
     const total = await Product.countDocuments();
     const totalPages = Math.ceil(total / limit);
@@ -191,7 +192,7 @@ export const createProduct = async (req: Request, res: Response) => {
 
 export const getEditProductForm = async (req: Request, res: Response) => {
   try {
-    const product = await Product.findById(req.params.id).populate('categoryId');
+    const product = await Product.findById(req.params.id).populate('categoryId').lean();
     const categories = await Category.find({ isActive: true }).sort({ order: 1 });
 
     if (!product) {
@@ -221,7 +222,7 @@ export const updateProductWithUpload = async (req: Request, res: Response) => {
   uploadSingle(req, res, async (err: any) => {
     if (err) {
       console.error('Upload error:', err);
-      const product = await Product.findById(req.params.id).populate('categoryId');
+      const product = await Product.findById(req.params.id).populate('categoryId').lean();
       const categories = await Category.find({ isActive: true }).sort({ order: 1 });
       return res.status(400).render('admin/product-form', {
         title: `Chỉnh sửa ${product?.name} - Green Nutri`,
@@ -301,7 +302,7 @@ export const updateProductWithUpload = async (req: Request, res: Response) => {
       res.redirect('/admin/products?success=Product updated successfully');
     } catch (error) {
       console.error('Update product error:', error);
-      const product = await Product.findById(req.params.id).populate('categoryId');
+      const product = await Product.findById(req.params.id).populate('categoryId').lean();
       const categories = await Category.find({ isActive: true }).sort({ order: 1 });
 
       res.status(400).render('admin/product-form', {
@@ -343,7 +344,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     res.redirect('/admin/products?success=Product updated successfully');
   } catch (error) {
     console.error('Update product error:', error);
-    const product = await Product.findById(req.params.id).populate('categoryId');
+    const product = await Product.findById(req.params.id).populate('categoryId').lean();
     const categories = await Category.find({ isActive: true }).sort({ order: 1 });
 
     res.status(400).render('admin/product-form', {

@@ -12,7 +12,7 @@ const getAdminDashboard = async (req, res) => {
     try {
         const productCount = await Product_1.default.countDocuments();
         const categoryCount = await Category_1.default.countDocuments();
-        const recentProducts = await Product_1.default.find().sort({ createdAt: -1 }).limit(5).populate('categoryId');
+        const recentProducts = await Product_1.default.find().sort({ createdAt: -1 }).limit(5).populate('categoryId').lean();
         res.render('admin/dashboard', {
             title: 'Admin Dashboard - Green Nutri',
             productCount,
@@ -39,7 +39,8 @@ const getProducts = async (req, res) => {
             .populate('categoryId')
             .sort({ createdAt: -1 })
             .skip(skip)
-            .limit(limit);
+            .limit(limit)
+            .lean();
         const total = await Product_1.default.countDocuments();
         const totalPages = Math.ceil(total / limit);
         res.render('admin/products', {
@@ -188,7 +189,7 @@ const createProduct = async (req, res) => {
 exports.createProduct = createProduct;
 const getEditProductForm = async (req, res) => {
     try {
-        const product = await Product_1.default.findById(req.params.id).populate('categoryId');
+        const product = await Product_1.default.findById(req.params.id).populate('categoryId').lean();
         const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 });
         if (!product) {
             return res.status(404).render('admin/error', {
@@ -217,7 +218,7 @@ const updateProductWithUpload = async (req, res) => {
     (0, upload_1.uploadSingle)(req, res, async (err) => {
         if (err) {
             console.error('Upload error:', err);
-            const product = await Product_1.default.findById(req.params.id).populate('categoryId');
+            const product = await Product_1.default.findById(req.params.id).populate('categoryId').lean();
             const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 });
             return res.status(400).render('admin/product-form', {
                 title: `Chỉnh sửa ${product?.name} - Green Nutri`,
@@ -285,7 +286,7 @@ const updateProductWithUpload = async (req, res) => {
         }
         catch (error) {
             console.error('Update product error:', error);
-            const product = await Product_1.default.findById(req.params.id).populate('categoryId');
+            const product = await Product_1.default.findById(req.params.id).populate('categoryId').lean();
             const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 });
             res.status(400).render('admin/product-form', {
                 title: `Chỉnh sửa ${product?.name} - Green Nutri`,
@@ -320,7 +321,7 @@ const updateProduct = async (req, res) => {
     }
     catch (error) {
         console.error('Update product error:', error);
-        const product = await Product_1.default.findById(req.params.id).populate('categoryId');
+        const product = await Product_1.default.findById(req.params.id).populate('categoryId').lean();
         const categories = await Category_1.default.find({ isActive: true }).sort({ order: 1 });
         res.status(400).render('admin/product-form', {
             title: `Chỉnh sửa ${product?.name} - Green Nutri`,
