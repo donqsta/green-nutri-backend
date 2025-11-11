@@ -114,13 +114,25 @@ export const createProductWithUpload = async (req: Request, res: Response) => {
       const productData: any = {
         ...req.body,
         slug,
-        price: parseInt(req.body.price),
-        salePrice: parseInt(req.body.salePrice) || undefined,
-        originalPrice: parseInt(req.body.originalPrice) || parseInt(req.body.price),
-        stock: parseInt(req.body.stock),
+        price: parseInt(req.body.price) || 0,
+        salePrice: req.body.salePrice ? parseInt(req.body.salePrice) : undefined,
+        originalPrice: req.body.originalPrice ? parseInt(req.body.originalPrice) : parseInt(req.body.price),
+        stock: parseInt(req.body.stock) || 0,
         isActive: req.body.isActive === 'on',
         isFeatured: req.body.isFeatured === 'on'
       };
+
+      // Handle details field - only include if it's a valid array
+      if (req.body.details && Array.isArray(req.body.details)) {
+        productData.details = req.body.details;
+      } else {
+        delete productData.details; // Remove empty/invalid details
+      }
+
+      // Handle variants field
+      if (req.body.variants && Array.isArray(req.body.variants)) {
+        productData.variants = req.body.variants;
+      }
 
       // Handle uploaded image or URL
       if (req.file) {
@@ -130,6 +142,14 @@ export const createProductWithUpload = async (req: Request, res: Response) => {
       } else {
         // Default image if none provided
         productData.image = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDIwMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zz4KPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiMwNjgyNDIiLz4KPHRleHQgeD0iMTAwIiB5PSI2MCIgZmlsbD0iI0ZGRkRkZGIiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgdGV4dC1hbmNob3IgPSJtaWRkbGUiPlByb2R1Y3Q8L3RleHQ+Cjwvc3ZnPgo=';
+      }
+
+      // Ensure required fields have valid values
+      if (!productData.price || productData.price === 0) {
+        productData.price = 100000; // Default price
+      }
+      if (!productData.stock || productData.stock === 0) {
+        productData.stock = 10; // Default stock
       }
 
       // Handle variants
