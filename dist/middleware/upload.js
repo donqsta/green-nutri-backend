@@ -45,7 +45,13 @@ exports.uploadSingle = upload.single('image');
 exports.uploadMultiple = upload.array('images', 5); // Up to 5 images
 // Helper to get uploaded file URL
 const getFileUrl = (filename) => {
-    return `/uploads/${filename}`;
+    // Get the base URL from environment or fallback to localhost for development
+    const baseUrl = process.env.NODE_ENV === 'production'
+        ? process.env.RAILWAY_PUBLIC_DOMAIN
+            ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+            : process.env.BASE_URL || 'http://localhost:3001'
+        : 'http://localhost:3001';
+    return `${baseUrl}/uploads/${filename}`;
 };
 exports.getFileUrl = getFileUrl;
 // Helper to delete uploaded file

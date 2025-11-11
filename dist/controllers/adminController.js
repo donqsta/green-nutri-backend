@@ -274,11 +274,11 @@ const updateProductWithUpload = async (req, res) => {
             if (slug) {
                 productData.slug = slug;
             }
-            // Parse numeric fields
-            productData.price = parseInt(req.body.price);
-            productData.salePrice = parseInt(req.body.salePrice) || undefined;
-            productData.originalPrice = parseInt(req.body.originalPrice) || parseInt(req.body.price);
-            productData.stock = parseInt(req.body.stock);
+            // Parse numeric fields with safe defaults
+            productData.price = parseInt(req.body.price) || 0;
+            productData.salePrice = req.body.salePrice ? parseInt(req.body.salePrice) : undefined;
+            productData.originalPrice = req.body.originalPrice ? parseInt(req.body.originalPrice) : parseInt(req.body.price) || 0;
+            productData.stock = parseInt(req.body.stock) || 0;
             productData.isActive = req.body.isActive === 'on';
             productData.isFeatured = req.body.isFeatured === 'on';
             // Handle uploaded image or URL
@@ -287,6 +287,13 @@ const updateProductWithUpload = async (req, res) => {
             }
             else if (req.body.imageUrl) {
                 productData.image = req.body.imageUrl;
+            }
+            // Handle details field - only include if it's a valid array
+            if (req.body.details && Array.isArray(req.body.details)) {
+                productData.details = req.body.details;
+            }
+            else {
+                delete productData.details; // Remove empty/invalid details
             }
             // Handle variants
             if (req.body.variants && Array.isArray(req.body.variants)) {
