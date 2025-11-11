@@ -148,6 +148,9 @@ export const createProductWithUpload = async (req: Request, res: Response) => {
       res.redirect('/admin/products?success=Product created successfully');
     } catch (error: any) {
       console.error('Create product error:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      console.error('Request body:', req.body);
+      console.error('Request file:', req.file);
       const categories = await Category.find({ isActive: true }).sort({ order: 1 }).lean();
 
       res.status(400).render('admin/product-form', {
