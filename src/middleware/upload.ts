@@ -44,14 +44,8 @@ export const uploadMultiple = upload.array('images', 5); // Up to 5 images
 
 // Helper to get uploaded file URL
 export const getFileUrl = (filename: string): string => {
-  // Get the base URL from environment or fallback to localhost for development
-  const baseUrl = process.env.NODE_ENV === 'production'
-    ? process.env.RAILWAY_PUBLIC_DOMAIN
-      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
-      : process.env.BASE_URL || 'http://localhost:3001'
-    : 'http://localhost:3001';
-
-  return `${baseUrl}/uploads/${filename}`;
+  // Return relative URL to hide backend URL
+  return `/uploads/${filename}`;
 };
 
 // Helper to delete uploaded file
