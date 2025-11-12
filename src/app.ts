@@ -103,7 +103,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
 ];
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? true : allowedOrigins,
+  origin: true, // Allow all origins for Zalo Mini App compatibility
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
