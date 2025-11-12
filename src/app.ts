@@ -103,10 +103,18 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
 ];
 
 app.use(cors({
-  origin: true, // Allow all origins for Zalo Mini App compatibility
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    // Allow all origins for Zalo Mini App compatibility
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  preflightContinue: false,
+  optionsSuccessStatus: 200
 }));
 
 // Override CORP header to allow cross-origin resource sharing

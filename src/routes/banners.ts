@@ -7,7 +7,7 @@ router.get('/', async (req, res) => {
   try {
     // For now, return empty array since we don't have banners in the database
     // This can be extended later to have a banners collection
-    const banners = [];
+    const banners: any[] = [];
 
     res.json({
       success: true,

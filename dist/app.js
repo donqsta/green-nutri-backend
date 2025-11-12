@@ -20,6 +20,7 @@ const auth_1 = __importDefault(require("./routes/auth"));
 const cart_1 = __importDefault(require("./routes/cart"));
 const orders_1 = __importDefault(require("./routes/orders"));
 const admin_1 = __importDefault(require("./routes/admin"));
+const banners_1 = __importDefault(require("./routes/banners"));
 // Middleware
 const errorHandler_1 = require("./middleware/errorHandler");
 const app = (0, express_1.default)();
@@ -79,15 +80,43 @@ app.use((0, express_session_1.default)({
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));
-// Security middleware (but disable contentSecurityPolicy for admin views)
+// Security middleware (but disable contentSecurityPolicy for admin views and CORS policies for images)
 app.use((0, helmet_1.default)({
-    contentSecurityPolicy: false
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
-// CORS configuration
+// CORS configuration - allow localhost for development and all origins for production
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:2999',
+    'https://green-nutri-backend-production.up.railway.app',
+    // Zalo Mini App domains
+    'https://miniapp.zaloplatforms.com',
+    'https://mini.zalo.me',
+    'https://h5.zalo.me',
+    'https://h5.zadn.vn',
+    'https://h5.zdn.vn'
+];
 app.use((0, cors_1.default)({
-    origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
-    credentials: true
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin)
+            return callback(null, true);
+        // Allow all origins for Zalo Mini App compatibility
+        return callback(null, true);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    preflightContinue: false,
+    optionsSuccessStatus: 200
 }));
+// Override CORP header to allow cross-origin resource sharing
+app.use((req, res, next) => {
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    next();
+});
 // Body parsing middleware
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -101,7 +130,8 @@ app.get('/health', (req, res) => {
         success: true,
         message: 'Green Nutri API is running',
         timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV
+        environment: process.env.NODE_ENV,
+        version: '1.2.0'
     });
 });
 // API Routes
@@ -110,6 +140,7 @@ app.use('/v1/categories', categories_1.default);
 app.use('/v1/auth', auth_1.default);
 app.use('/v1/cart', cart_1.default);
 app.use('/v1/orders', orders_1.default);
+app.use('/v1/banners', banners_1.default);
 // Admin routes
 app.use('/admin', admin_1.default);
 // 404 handler
