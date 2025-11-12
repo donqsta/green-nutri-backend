@@ -131,7 +131,8 @@ app.get('/health', (req, res) => {
     success: true,
     message: 'Green Nutri API is running',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
+    environment: process.env.NODE_ENV,
+    version: '1.2.0'
   });
 });
 
